@@ -1,0 +1,25 @@
+{
+  "name": "@jsilvanus/stream-light",
+  "version": "0.1.0",
+  "description": "Tell people whether a stream is on: a light controller with a YouTube source, tally lamp outputs and camera tally helpers. Zero runtime dependencies.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./core": "./src/core/index.js",
+    "./youtube": "./src/sources/youtube.js",
+    "./push": "./src/sources/push.js",
+    "./tally-ma": "./src/outputs/tally-ma.js",
+    "./webhook": "./src/outputs/webhook.js",
+    "./console": "./src/outputs/console.js",
+    "./web": "./src/outputs/web.js"
+  },
+  "bin": { "stream-light": "./bin/stream-light.js" },
+  "files": ["src", "bin", "README.md", "LICENSE"],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "repository": { "type": "git", "url": "git+https://github.com/jsilvanus/stream-light.git" }
+}
