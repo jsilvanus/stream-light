@@ -46,3 +46,10 @@ test('atem source emits current state, follows changes and reports disconnects',
   assert.equal(got.length, 3);
   assert.equal(atem.listenerCount('stateChanged'), 0);
 });
+
+test('programInputTallyState: the active input is PGM, others OFF, unknown null', async () => {
+  const { programInputTallyState } = await import('../src/sources/push.js');
+  assert.equal(programInputTallyState(2, 2), 'PGM');
+  assert.equal(programInputTallyState(2, 3), 'OFF');
+  assert.equal(programInputTallyState(null, 3), null);
+});
