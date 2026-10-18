@@ -97,3 +97,11 @@ test('findOutputClash finds two enabled lights on the same lamp', () => {
   assert.equal(findOutputClash([a, { ...b, enabled: false }]), null);
   assert.equal(findOutputClash([a, { ...b, output: { ...b.output, host: '192.168.1.51' } }]), null);
 });
+
+test('camera light with an lcyt mixer source validates', () => {
+  const ok = validateLightConfig({ name: 'Cam 2', kind: 'camera', output: { type: 'console' }, source: { type: 'lcyt', mixerId: 'm1', input: 2 } });
+  assert.equal(ok.ok, true);
+  assert.deepEqual(ok.value.source, { type: 'lcyt', mixerId: 'm1', input: 2 });
+  const bad = validateLightConfig({ name: 'Cam 2', kind: 'camera', output: { type: 'console' }, source: { type: 'lcyt', input: 0 } });
+  assert.equal(bad.ok, false);
+});

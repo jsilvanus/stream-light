@@ -63,7 +63,7 @@ Override per light with `look: { LIVE: "#ff0000", UNKNOWN: "blink:#ffa000" }`.
 }
 ```
 
-Outputs: `tally-ma` (UDP, port 21324), `webhook` (POST JSON), `console`, `web` (status board). ATEM lights need `npm install atem-connection`.
+Outputs: `tally-ma` (UDP, port 21324), `webhook` (POST JSON), `console`, `web` (status board). ATEM lights need `npm install atem-connection`. A camera light can also take its program input from a host's own software mixer (`source: { type: "lcyt", mixerId, input }`); the host pushes readings, the standalone program does not run this source.
 
 ## Library use
 
