@@ -19,7 +19,8 @@
   "bin": { "stream-light": "./bin/stream-light.js" },
   "files": ["src", "bin", "README.md", "LICENSE"],
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "validate:openapi": "npx --yes @redocly/cli@1.34.5 lint --extends=minimal openapi.yaml"
   },
   "repository": { "type": "git", "url": "git+https://github.com/jsilvanus/stream-light.git" }
 }
