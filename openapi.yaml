@@ -1,0 +1,167 @@
+openapi: 3.1.0
+info:
+  title: stream-light Control API
+  version: 0.1.0
+  description: API contract for independent light control; used as the source for a generated CLI.
+servers:
+  - url: http://127.0.0.1:8787
+    description: Local-only default; do not bind control endpoints to a LAN by default.
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Check service readiness
+      responses:
+        '200':
+          description: Ready
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, const: ok }
+  /lights:
+    get:
+      operationId: listLights
+      summary: List configured lights
+      responses:
+        '200':
+          description: Lights
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Light' }
+  /lights/{lightId}:
+    parameters:
+      - $ref: '#/components/parameters/LightId'
+    get:
+      operationId: getLight
+      summary: Get one light's state and configuration
+      responses:
+        '200':
+          description: Light
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Light' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /lights/{lightId}/color:
+    parameters:
+      - $ref: '#/components/parameters/LightId'
+    put:
+      operationId: setLightColor
+      summary: Set a solid colour and enter manual mode for this light
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [hex]
+                  properties:
+                    hex: { $ref: '#/components/schemas/HexColor' }
+                - type: object
+                  required: [rgb]
+                  properties:
+                    rgb: { $ref: '#/components/schemas/RgbColor' }
+      responses:
+        '200':
+          description: Colour applied
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Light' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /lights/{lightId}/effect:
+    parameters:
+      - $ref: '#/components/parameters/LightId'
+    put:
+      operationId: setLightEffect
+      summary: Set a manual steady or blink effect for this light
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [effect, color]
+              properties:
+                effect: { type: string, enum: [steady, blink] }
+                color:
+                  oneOf:
+                    - { $ref: '#/components/schemas/HexColor' }
+                    - { $ref: '#/components/schemas/RgbColor' }
+      responses:
+        '200':
+          description: Effect applied
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Light' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /lights/{lightId}/auto:
+    parameters:
+      - $ref: '#/components/parameters/LightId'
+    post:
+      operationId: restoreLightAuto
+      summary: Release manual override and resume automatic source control
+      responses:
+        '200':
+          description: Automatic control restored
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Light' }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  parameters:
+    LightId:
+      name: lightId
+      in: path
+      required: true
+      schema: { type: string, minLength: 1 }
+  schemas:
+    HexColor:
+      type: string
+      pattern: '^#[0-9A-Fa-f]{6}$'
+      examples: ['#7B2CFF']
+    RgbColor:
+      type: array
+      prefixItems:
+        - { type: integer, minimum: 0, maximum: 255 }
+        - { type: integer, minimum: 0, maximum: 255 }
+        - { type: integer, minimum: 0, maximum: 255 }
+      minItems: 3
+      maxItems: 3
+      examples: [[123, 44, 255]]
+    Light:
+      type: object
+      required: [id, name, kind, mode, state]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        kind: { type: string, enum: [live-signal, camera] }
+        mode: { type: string, enum: [auto, manual] }
+        state: { type: string }
+        color: { $ref: '#/components/schemas/RgbColor' }
+        blink: { type: boolean }
+        source: { type: object, additionalProperties: true }
+        output: { type: object, additionalProperties: true }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+        message: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Unknown light ID
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
